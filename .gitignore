@@ -1,5 +1,6 @@
 # Исполняемые файлы
 task_manager
+test_runner
 *.exe
 *.out
 
