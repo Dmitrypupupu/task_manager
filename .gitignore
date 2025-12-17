@@ -1,0 +1,27 @@
+# Исполняемые файлы
+task_manager
+*.exe
+*.out
+
+# Объектные файлы
+*.o
+*.obj
+
+# Директории и файлы данных
+notes/
+notes_metadata.dat
+
+# IDE и редакторы
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Временные файлы
+*.tmp
+*.bak
+
+# Системные файлы
+.DS_Store
+Thumbs.db
