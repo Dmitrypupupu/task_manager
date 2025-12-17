@@ -72,12 +72,15 @@ bool validateMenuChoice(int choice, int min, int max) {
 }
 
 void clearScreen() {
+    // Использование безопасных методов очистки экрана
     #ifdef _WIN32
+        // Для Windows можно использовать system, но с проверкой
         int result = system("cls");
         (void)result;  // Игнорируем результат
     #else
-        int result = system("clear");
-        (void)result;  // Игнорируем результат
+        // Для Unix/Linux используем ANSI escape коды как более безопасную альтернативу
+        std::cout << "\033[2J\033[1;1H";
+        std::cout.flush();
     #endif
 }
 

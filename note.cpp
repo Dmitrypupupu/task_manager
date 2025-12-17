@@ -4,7 +4,13 @@
 #include <iostream>
 #include <sstream>
 #include <algorithm>
-#include <sys/stat.h>
+
+#ifdef _WIN32
+    #include <direct.h>
+    #define mkdir(path, mode) _mkdir(path)
+#else
+    #include <sys/stat.h>
+#endif
 
 // Константы
 const std::string METADATA_FILE = "notes_metadata.dat";
@@ -12,11 +18,7 @@ const std::string NOTES_DIR = "notes";
 
 NoteManager::NoteManager() : noteCount(0), nextId(1) {
     // Создаем директорию для заметок если она не существует
-    #ifdef _WIN32
-        _mkdir(NOTES_DIR.c_str());
-    #else
-        mkdir(NOTES_DIR.c_str(), 0755);
-    #endif
+    mkdir(NOTES_DIR.c_str(), 0755);
 }
 
 bool NoteManager::addNote(const std::string& title, const std::string& category, const std::string& content) {
@@ -136,46 +138,42 @@ void NoteManager::displayNote(int id) const {
 }
 
 void NoteManager::searchByCategory(const std::string& category) const {
-    // Создаем временный массив для результатов
-    Note results[MAX_NOTES];
-    int resultCount = 0;
-    
-    // Ищем заметки по категории
-    for (int i = 0; i < noteCount; i++) {
-        if (notes[i].category == category) {
-            results[resultCount++] = notes[i];
-        }
-    }
-    
-    if (resultCount == 0) {
-        std::cout << "\nЗаметки с темой \"" << category << "\" не найдены\n" << std::endl;
-        return;
-    }
+    bool foundAny = false;
     
     std::cout << "\n=== РЕЗУЛЬТАТЫ ПОИСКА: " << category << " ===" << std::endl;
     std::cout << "№  | Название                | Тема           | Дата создания" << std::endl;
     std::cout << "---+------------------------+----------------+--------------" << std::endl;
     
-    for (int i = 0; i < resultCount; i++) {
-        std::cout.width(2);
-        std::cout << std::left << results[i].id << " | ";
-        
-        std::string title = results[i].title;
-        if (title.length() > 22) {
-            title = title.substr(0, 19) + "...";
+    // Ищем и сразу выводим заметки по категории (без создания временного массива)
+    for (int i = 0; i < noteCount; i++) {
+        if (notes[i].category == category) {
+            foundAny = true;
+            
+            std::cout.width(2);
+            std::cout << std::left << notes[i].id << " | ";
+            
+            std::string title = notes[i].title;
+            if (title.length() > 22) {
+                title = title.substr(0, 19) + "...";
+            }
+            std::cout.width(22);
+            std::cout << std::left << title << " | ";
+            
+            std::string cat = notes[i].category;
+            if (cat.length() > 14) {
+                cat = cat.substr(0, 11) + "...";
+            }
+            std::cout.width(14);
+            std::cout << std::left << cat << " | ";
+            
+            std::cout << notes[i].creationDate << std::endl;
         }
-        std::cout.width(22);
-        std::cout << std::left << title << " | ";
-        
-        std::string cat = results[i].category;
-        if (cat.length() > 14) {
-            cat = cat.substr(0, 11) + "...";
-        }
-        std::cout.width(14);
-        std::cout << std::left << cat << " | ";
-        
-        std::cout << results[i].creationDate << std::endl;
     }
+    
+    if (!foundAny) {
+        std::cout << "\nЗаметки с темой \"" << category << "\" не найдены" << std::endl;
+    }
+    
     std::cout << std::endl;
 }
 
@@ -249,11 +247,11 @@ int NoteManager::findNoteIndex(int id) const {
 std::string NoteManager::generateFilePath(int id, const std::string& title) const {
     // Создаем безопасное имя файла
     std::string safeName = title;
+    const std::string invalidChars = " /<>|\\:\"*?";
+    
     for (size_t i = 0; i < safeName.length(); i++) {
-        if (safeName[i] == ' ') {
+        if (invalidChars.find(safeName[i]) != std::string::npos) {
             safeName[i] = '_';
-        } else if (safeName[i] == '/' || safeName[i] == '\\' || safeName[i] == ':') {
-            safeName[i] = '-';
         }
     }
     
