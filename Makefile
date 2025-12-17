@@ -8,6 +8,11 @@ SOURCES = main.cpp note.cpp validation.cpp ui.cpp
 OBJECTS = $(SOURCES:.cpp=.o)
 HEADERS = note.h validation.h ui.h
 
+# Файлы тестов
+TEST_TARGET = test_runner
+TEST_SOURCES = test.cpp note.cpp validation.cpp
+TEST_OBJECTS = $(TEST_SOURCES:.cpp=.o)
+
 # Основная цель
 all: $(TARGET)
 
@@ -36,4 +41,16 @@ run: $(TARGET)
 # Перекомпиляция
 rebuild: clean all
 
-.PHONY: all clean clean-obj run rebuild
+# Компиляция тестов
+test: $(TEST_TARGET)
+	./$(TEST_TARGET)
+
+# Сборка исполняемого файла тестов
+$(TEST_TARGET): test.o note.o validation.o
+	$(CXX) $(CXXFLAGS) -o $(TEST_TARGET) test.o note.o validation.o -lstdc++fs
+
+# Очистка включая тесты
+clean-all: clean
+	rm -f $(TEST_TARGET) test.o
+
+.PHONY: all clean clean-obj run rebuild test clean-all
