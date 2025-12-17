@@ -3,7 +3,6 @@
 #include <iostream>
 #include <cassert>
 #include <string>
-#include <cstdio>
 #include <fstream>
 #include <filesystem>
 
@@ -146,11 +145,11 @@ TEST(test_get_current_date_format) {
 
 // Вспомогательная функция для очистки тестовых данных
 void cleanupTestData() {
-    std::remove("notes_metadata.dat");
-    // Используем std::filesystem для безопасного удаления директории
+    // Используем std::filesystem для безопасного удаления
     std::error_code ec;
+    std::filesystem::remove("notes_metadata.dat", ec);
     std::filesystem::remove_all("notes", ec);
-    // Игнорируем ошибку, если директория не существует
+    // Игнорируем ошибку, если файлы/директории не существуют
 }
 
 TEST(test_note_manager_initialization) {
