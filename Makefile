@@ -47,7 +47,7 @@ test: $(TEST_TARGET)
 
 # Сборка исполняемого файла тестов
 $(TEST_TARGET): test.o note.o validation.o
-	$(CXX) $(CXXFLAGS) -o $(TEST_TARGET) test.o note.o validation.o
+	$(CXX) $(CXXFLAGS) -o $(TEST_TARGET) test.o note.o validation.o -lstdc++fs
 
 # Очистка включая тесты
 clean-all: clean

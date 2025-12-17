@@ -5,6 +5,7 @@
 #include <string>
 #include <cstdio>
 #include <fstream>
+#include <filesystem>
 
 // Цвета для консольного вывода
 #define GREEN "\033[32m"
@@ -146,8 +147,10 @@ TEST(test_get_current_date_format) {
 // Вспомогательная функция для очистки тестовых данных
 void cleanupTestData() {
     std::remove("notes_metadata.dat");
-    int result = system("rm -rf notes 2>/dev/null");
-    (void)result;  // Игнорируем результат
+    // Используем std::filesystem для безопасного удаления директории
+    std::error_code ec;
+    std::filesystem::remove_all("notes", ec);
+    // Игнорируем ошибку, если директория не существует
 }
 
 TEST(test_note_manager_initialization) {
@@ -283,7 +286,8 @@ TEST(test_max_notes_limit) {
     cleanupTestData();
     NoteManager manager;
     
-    // Добавляем несколько заметок для проверки (не 1000, чтобы тест был быстрым)
+    // Добавляем 10 заметок для проверки базовой функциональности
+    // (полное тестирование лимита в 1000 заметок займет слишком много времени)
     for (int i = 0; i < 10; i++) {
         std::string title = "Заметка " + std::to_string(i);
         ASSERT_TRUE(manager.addNote(title, "Тест", "Содержимое"));
