@@ -166,13 +166,13 @@
 
 // Дополнительные функции для работы с изображениями в таблицах
 #let passed-icon = image("passed1.png", width: 0.7cm)
-#let passed-icon = image("passed2.png", width: 0.7cm)
-#let passed-icon = image("passed3.png", width: 0.7cm)
-#let passed-icon = image("passed4.png", width: 0.7cm)
-#let passed-icon = image("passed5.png", width: 0.7cm)
-#let passed-icon = image("passed6.png", width: 0.7cm)
-#let passed-icon = image("passed7.png", width: 0.7cm)
-#let failed-icon = image("failed.png", width: 0.7cm)
+#let passed-icon1 = image("passed2.png", width: 0.7cm)
+#let passed-icon3 = image("passed3.png", width: 0.7cm)
+#let passed-icon4 = image("passed4.png", width: 0.7cm)
+#let passed-icon5 = image("passed5.png", width: 0.7cm)
+#let passed-icon6 = image("passed6.png", width: 0.7cm)
+#let passed-icon7 = image("passed7.png", width: 0.7cm)
+#let failed-icon8 = image("failed.png", width: 0.7cm)
 
 // Пример использования в таблице
 #figure(
