@@ -92,8 +92,8 @@
   set math.equation(numbering: "(1)")
   
   // ИСПРАВЛЕНИЕ: Ограничиваем применение стиля ТОЛЬКО для блоков с кодом
-  show raw.where(lang: not none): set text(10pt, font: "Times New Roman")
-  show raw.where(block: true): set text(10pt, font: "Times New Roman")
+  // show raw.where(lang: not none): set text(10pt, font: "Times New Roman")
+  // show raw.where(block: true): set text(10pt, font: "Times New Roman")
 
   body
 }
@@ -171,8 +171,7 @@
 #let passed-icon4 = image("passed4.png", width: 0.7cm)
 #let passed-icon5 = image("passed5.png", width: 0.7cm)
 #let passed-icon6 = image("passed6.png", width: 0.7cm)
-#let passed-icon7 = image("passed7.png", width: 0.7cm)
-#let failed-icon8 = image("failed.png", width: 0.7cm)
+
 
 // Пример использования в таблице
 #figure(

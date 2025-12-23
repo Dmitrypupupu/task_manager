@@ -579,7 +579,7 @@ table.header(
 [Ожидаемый результат],
 [Фактический результат]
 ),
-[1], [isValidNoteTitle], ["Корректное название"], [true], [image("passed1.png", width: 0.7cm)],
+[1], [isValidNoteTitle], ["Корректное название"], [true], [#image("passed1.png", width: 0.7cm)],
 [2], [isValidNoteTitle], ["" (пустая строка)], [false], [image("passed2.png", width: 0.7cm)],
 [3], [isValidNoteTitle], [101 символ 'a'], [false], [image("passed3.png", width: 0.7cm)],
 [4], [isValidNoteTitle], [" " (только пробелы)], [false], [image("passed4.png", width: 0.7cm)],
