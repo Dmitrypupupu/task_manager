@@ -568,17 +568,17 @@ table.header(
 
 #figure(
 kind: table,
-caption: [Результаты модульного тестирования функций валидации],
-table(
-columns: (0.8cm, 3.5cm, 3cm, 2.5cm, 2.5cm),
-align: (left, left, left, left, left),
-table.header(
-[№],
-[Тестируемая функция],
-[Входные данные],
-[Ожидаемый результат],
-[Фактический результат]
-),
+  caption: [Результаты тестирования],
+  table(
+    columns: (0.8cm, 2.5cm, 3cm, 1.5cm, 1.5cm),
+    align: (center, left, left, center, center),
+    table.header(
+      [*№*],
+      [*Тестируемая функция*],
+      [*Входные данные*],
+      [*Ожид. рез.*],
+      [*Факт. рез.*]
+    ),
 [1], [isValidNoteTitle], ["Корректное название"], [true], [image("passed1.png", width: 0.7cm)],
 [2], [isValidNoteTitle], ["" (пустая строка)], [false], [image("passed2.png", width: 0.7cm)],
 [3], [isValidNoteTitle], [101 символ 'a'], [false], [image("passed3.png", width: 0.7cm)],
