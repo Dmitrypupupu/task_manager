@@ -272,6 +272,68 @@ int noteCount;          // Счетчик заметок
 - Относительные пути к файлам
 - Поддержка UTF-8
 
+## Документация
+
+### Полная документация в формате Typst
+
+Полная техническая документация проекта доступна в файле `README.typ` в формате Typst.
+
+#### Компиляция документации
+
+Для компиляции документации из Typst в PDF необходимо:
+
+1. **Установить Typst:**
+
+   **На Linux/macOS:**
+   ```bash
+   # Через Homebrew (macOS)
+   brew install typst
+
+   # Через Cargo (Rust package manager)
+   cargo install --git https://github.com/typst/typst --locked typst-cli
+
+   # На Ubuntu/Debian можно скачать бинарник с GitHub
+   wget https://github.com/typst/typst/releases/latest/download/typst-x86_64-unknown-linux-musl.tar.xz
+   tar -xf typst-x86_64-unknown-linux-musl.tar.xz
+   sudo mv typst-x86_64-unknown-linux-musl/typst /usr/local/bin/
+   ```
+
+   **На Windows:**
+   ```powershell
+   # Через Scoop
+   scoop install typst
+
+   # Или скачайте установщик с https://github.com/typst/typst/releases
+   ```
+
+2. **Скомпилировать документ:**
+   ```bash
+   typst compile README.typ README.pdf
+   ```
+
+   Или для автоматической перекомпиляции при изменениях:
+   ```bash
+   typst watch README.typ README.pdf
+   ```
+
+3. **Результат:**
+   После компиляции будет создан файл `README.pdf` с полной документацией проекта.
+
+#### Структура документации
+
+Документация включает следующие разделы:
+- Введение и цели проекта
+- Анализ предметной области
+- Анализ методов хранения данных и алгоритмов
+- Техническое задание
+- Разработка и анализ требований
+- Проектирование структуры программы
+- Разработка и отладка программы
+- Тестирование программы
+- Заключение
+
+Документация оформлена в соответствии с ГОСТ с использованием шаблона из `typst_lib/gost.typ`.
+
 ## Лицензия
 
 Проект разработан в учебных целях.
