@@ -16,24 +16,47 @@
 const std::string METADATA_FILE = "notes_metadata.dat";
 const std::string NOTES_DIR = "notes";
 
-NoteManager::NoteManager() : noteCount(0), nextId(1) {
+NoteManager::NoteManager() : head(nullptr), tail(nullptr), noteCount(0), nextId(1) {
     // Создаем директорию для заметок если она не существует
     mkdir(NOTES_DIR.c_str(), 0755);
 }
 
-bool NoteManager::addNote(const std::string& title, const std::string& category, const std::string& content) {
-    // Проверка на максимальное количество заметок
-    if (noteCount >= MAX_NOTES) {
-        std::cout << "Ошибка: достигнуто максимальное количество заметок (" << MAX_NOTES << ")" << std::endl;
-        return false;
+NoteManager::~NoteManager() {
+    clearList();
+}
+
+void NoteManager::clearList() {
+    NoteNode* current = head;
+    while (current != nullptr) {
+        NoteNode* next = current->next;
+        delete current;
+        current = next;
     }
-    
+    head = nullptr;
+    tail = nullptr;
+    noteCount = 0;
+}
+
+NoteNode* NoteManager::findNode(int id) const {
+    NoteNode* current = head;
+    while (current != nullptr) {
+        if (current->data.id == id) {
+            return current;
+        }
+        current = current->next;
+    }
+    return nullptr;
+}
+
+bool NoteManager::addNote(const std::string& title, const std::string& category, const std::string& content) {
     // Проверка уникальности названия
-    for (int i = 0; i < noteCount; i++) {
-        if (notes[i].title == title) {
+    NoteNode* current = head;
+    while (current != nullptr) {
+        if (current->data.title == title) {
             std::cout << "Ошибка: заметка с таким названием уже существует" << std::endl;
             return false;
         }
+        current = current->next;
     }
     
     // Создаем новую заметку
@@ -53,8 +76,20 @@ bool NoteManager::addNote(const std::string& title, const std::string& category,
         return false;
     }
     
-    // Добавляем в массив
-    notes[noteCount++] = newNote;
+    // Создаем новый узел
+    NoteNode* newNode = new NoteNode(newNote);
+    
+    // Добавляем в конец списка
+    if (tail == nullptr) {
+        // Список пуст
+        head = tail = newNode;
+    } else {
+        // Добавляем в конец
+        tail->next = newNode;
+        newNode->prev = tail;
+        tail = newNode;
+    }
+    noteCount++;
     
     // Обновляем метаданные
     saveToFile();
@@ -63,21 +98,33 @@ bool NoteManager::addNote(const std::string& title, const std::string& category,
 }
 
 bool NoteManager::deleteNote(int id) {
-    int index = findNoteIndex(id);
-    if (index == -1) {
+    NoteNode* node = findNode(id);
+    if (node == nullptr) {
         std::cout << "Ошибка: заметка с ID " << id << " не найдена" << std::endl;
         return false;
     }
     
     // Удаляем файл заметки
-    if (remove(notes[index].filePath.c_str()) != 0) {
+    if (remove(node->data.filePath.c_str()) != 0) {
         std::cout << "Предупреждение: не удалось удалить файл заметки" << std::endl;
     }
     
-    // Сдвигаем элементы массива
-    for (int i = index; i < noteCount - 1; i++) {
-        notes[i] = notes[i + 1];
+    // Удаляем узел из списка
+    if (node->prev != nullptr) {
+        node->prev->next = node->next;
+    } else {
+        // Удаляем голову списка
+        head = node->next;
     }
+    
+    if (node->next != nullptr) {
+        node->next->prev = node->prev;
+    } else {
+        // Удаляем хвост списка
+        tail = node->prev;
+    }
+    
+    delete node;
     noteCount--;
     
     // Обновляем метаданные
@@ -96,37 +143,40 @@ void NoteManager::displayAllNotes() const {
     std::cout << "№  | Название                | Тема           | Дата создания" << std::endl;
     std::cout << "---+------------------------+----------------+--------------" << std::endl;
     
-    for (int i = 0; i < noteCount; i++) {
+    NoteNode* current = head;
+    while (current != nullptr) {
         std::cout.width(2);
-        std::cout << std::left << notes[i].id << " | ";
+        std::cout << std::left << current->data.id << " | ";
         
-        std::string title = notes[i].title;
+        std::string title = current->data.title;
         if (title.length() > 22) {
             title = title.substr(0, 19) + "...";
         }
         std::cout.width(22);
         std::cout << std::left << title << " | ";
         
-        std::string category = notes[i].category;
+        std::string category = current->data.category;
         if (category.length() > 14) {
             category = category.substr(0, 11) + "...";
         }
         std::cout.width(14);
         std::cout << std::left << category << " | ";
         
-        std::cout << notes[i].creationDate << std::endl;
+        std::cout << current->data.creationDate << std::endl;
+        
+        current = current->next;
     }
     std::cout << std::endl;
 }
 
 void NoteManager::displayNote(int id) const {
-    int index = findNoteIndex(id);
-    if (index == -1) {
+    NoteNode* node = findNode(id);
+    if (node == nullptr) {
         std::cout << "Ошибка: заметка с ID " << id << " не найдена" << std::endl;
         return;
     }
     
-    const Note& note = notes[index];
+    const Note& note = node->data;
     
     std::cout << "\n=== ЗАМЕТКА #" << note.id << " ===" << std::endl;
     std::cout << "Название: " << note.title << std::endl;
@@ -144,30 +194,32 @@ void NoteManager::searchByCategory(const std::string& category) const {
     std::cout << "№  | Название                | Тема           | Дата создания" << std::endl;
     std::cout << "---+------------------------+----------------+--------------" << std::endl;
     
-    // Ищем и сразу выводим заметки по категории (без создания временного массива)
-    for (int i = 0; i < noteCount; i++) {
-        if (notes[i].category == category) {
+    // Ищем и сразу выводим заметки по категории (обход списка)
+    NoteNode* current = head;
+    while (current != nullptr) {
+        if (current->data.category == category) {
             foundAny = true;
             
             std::cout.width(2);
-            std::cout << std::left << notes[i].id << " | ";
+            std::cout << std::left << current->data.id << " | ";
             
-            std::string title = notes[i].title;
+            std::string title = current->data.title;
             if (title.length() > 22) {
                 title = title.substr(0, 19) + "...";
             }
             std::cout.width(22);
             std::cout << std::left << title << " | ";
             
-            std::string cat = notes[i].category;
+            std::string cat = current->data.category;
             if (cat.length() > 14) {
                 cat = cat.substr(0, 11) + "...";
             }
             std::cout.width(14);
             std::cout << std::left << cat << " | ";
             
-            std::cout << notes[i].creationDate << std::endl;
+            std::cout << current->data.creationDate << std::endl;
         }
+        current = current->next;
     }
     
     if (!foundAny) {
@@ -184,10 +236,12 @@ void NoteManager::loadFromFile() {
         return;
     }
     
-    noteCount = 0;
+    // Очищаем текущий список
+    clearList();
+    
     std::string line;
     
-    while (std::getline(file, line) && noteCount < MAX_NOTES) {
+    while (std::getline(file, line)) {
         std::stringstream ss(line);
         std::string token;
         Note note;
@@ -207,7 +261,16 @@ void NoteManager::loadFromFile() {
             // Загружаем содержимое из файла
             note.content = loadNoteContent(note.filePath);
             
-            notes[noteCount++] = note;
+            // Создаем новый узел и добавляем в конец списка
+            NoteNode* newNode = new NoteNode(note);
+            if (tail == nullptr) {
+                head = tail = newNode;
+            } else {
+                tail->next = newNode;
+                newNode->prev = tail;
+                tail = newNode;
+            }
+            noteCount++;
         }
     }
     
@@ -220,26 +283,33 @@ void NoteManager::saveToFile() const {
         throw std::runtime_error("Не удалось открыть файл метаданных для записи");
     }
     
-    for (int i = 0; i < noteCount; i++) {
-        file << notes[i].id << "|"
-             << notes[i].title << "|"
-             << notes[i].category << "|"
-             << notes[i].creationDate << "|"
-             << notes[i].filePath << std::endl;
+    NoteNode* current = head;
+    while (current != nullptr) {
+        file << current->data.id << "|"
+             << current->data.title << "|"
+             << current->data.category << "|"
+             << current->data.creationDate << "|"
+             << current->data.filePath << std::endl;
+        current = current->next;
     }
     
     file.close();
 }
 
 bool NoteManager::noteExists(int id) const {
-    return findNoteIndex(id) != -1;
+    return findNode(id) != nullptr;
 }
 
 int NoteManager::findNoteIndex(int id) const {
-    for (int i = 0; i < noteCount; i++) {
-        if (notes[i].id == id) {
-            return i;
+    // Для совместимости с тестами возвращаем индекс узла в списке
+    NoteNode* current = head;
+    int index = 0;
+    while (current != nullptr) {
+        if (current->data.id == id) {
+            return index;
         }
+        current = current->next;
+        index++;
     }
     return -1;
 }

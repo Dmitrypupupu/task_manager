@@ -3,9 +3,6 @@
 
 #include <string>
 
-// Максимальное количество заметок
-const int MAX_NOTES = 1000;
-
 // Структура для хранения заметки
 struct Note {
     int id;                      // Уникальный идентификатор заметки
@@ -16,15 +13,26 @@ struct Note {
     std::string filePath;        // Путь к файлу заметки
 };
 
+// Узел двусвязного списка
+struct NoteNode {
+    Note data;                   // Данные заметки
+    NoteNode* next;              // Указатель на следующий узел
+    NoteNode* prev;              // Указатель на предыдущий узел
+    
+    NoteNode(const Note& note) : data(note), next(nullptr), prev(nullptr) {}
+};
+
 // Класс для управления заметками
 class NoteManager {
 private:
-    Note notes[MAX_NOTES];  // Массив заметок (вместо вектора)
-    int noteCount;          // Текущее количество заметок
-    int nextId;             // Следующий доступный ID
+    NoteNode* head;             // Голова списка
+    NoteNode* tail;             // Хвост списка
+    int noteCount;              // Текущее количество заметок
+    int nextId;                 // Следующий доступный ID
 
 public:
     NoteManager();
+    ~NoteManager();
     
     // Основные операции
     bool addNote(const std::string& title, const std::string& category, const std::string& content);
@@ -51,6 +59,12 @@ private:
     // Сохранение/загрузка отдельной заметки
     void saveNoteToFile(const Note& note) const;
     std::string loadNoteContent(const std::string& filePath) const;
+    
+    // Поиск узла по ID
+    NoteNode* findNode(int id) const;
+    
+    // Очистка списка
+    void clearList();
 };
 
 #endif // NOTE_H
