@@ -30,7 +30,6 @@
     v(0.8em)
     it
     v(0.8em)
-
   }
 
   set list(marker: [---], body-indent: 0.7em, indent: 1.25cm)
@@ -39,7 +38,6 @@
     
   set enum(numbering: "1.", body-indent: 0.7em, indent: 1.25cm)
   show enum: set par(hanging-indent: -4.2em)
-
     
   // Ссылка на изображения (без рисунок, просто число)
   show ref: it =>{
@@ -58,20 +56,16 @@
     }
   }
 
-
   // titlepage
-  
-
   set page(
     margin: (top: 20mm, bottom: 20mm, left: 20mm, right: 10mm),
   )
     
   // toc
-    set page(numbering: "1")
-    counter(page).update(2)
+  set page(numbering: "1")
+  counter(page).update(2)
 
-
- {
+  {
     if true {
       show outline: set block(below: 1.25cm / 2)
       show outline: set text(hyphenate: false)
@@ -84,9 +78,9 @@
       pagebreak()
     }
   }
+  
   show heading: it => block(width: 100%)[
     #set text(14pt, weight: "bold", hyphenate: false)
-
     #if (it.numbering != none) {
       counter(heading).display()
     }
@@ -97,8 +91,9 @@
   show figure.where(kind: table): set block(breakable: true)
   set math.equation(numbering: "(1)")
   
-
-  show raw: set text(10pt, font: "Times New Roman")
+  // ИСПРАВЛЕНИЕ: Ограничиваем применение стиля ТОЛЬКО для блоков с кодом
+  show raw.where(lang: not none): set text(10pt, font: "Times New Roman")
+  show raw.where(block: true): set text(10pt, font: "Times New Roman")
 
   body
 }
@@ -107,7 +102,6 @@
 #let ch(content) = {
   align(heading(content, numbering: none), center)
 }
-
 
 // 1. Глобальный счетчик для уникальных ID (избавляет от ошибки datetime)
 #let table-id-counter = counter("table-unique-id")
@@ -166,8 +160,40 @@
 
       // --- ТЕЛО ТАБЛИЦЫ ---
       ..pos-args,
-
-      
     )
   }
 }
+
+// Дополнительные функции для работы с изображениями в таблицах
+#let passed-icon = image("passed1.png", width: 0.7cm)
+#let passed-icon = image("passed2.png", width: 0.7cm)
+#let passed-icon = image("passed3.png", width: 0.7cm)
+#let passed-icon = image("passed4.png", width: 0.7cm)
+#let passed-icon = image("passed5.png", width: 0.7cm)
+#let passed-icon = image("passed6.png", width: 0.7cm)
+#let passed-icon = image("passed7.png", width: 0.7cm)
+#let failed-icon = image("failed.png", width: 0.7cm)
+
+// Пример использования в таблице
+#figure(
+  kind: table,
+  caption: [Результаты тестирования],
+  table(
+    columns: (0.8cm, 2.5cm, 3cm, 1.5cm, 1.5cm),
+    align: (center, left, left, center, center),
+    table.header(
+      [*№*],
+      [*Тестируемая функция*],
+      [*Входные данные*],
+      [*Ожид. рез.*],
+      [*Факт. рез.*]
+    ),
+    [1], [isValidNoteTitle], ["Корректное название"], [true], [#passed-icon],
+    [2], [isValidNoteTitle], ["" (пустая строка)], [false], [#passed-icon],
+    [3], [isValidNoteTitle], [101 символ 'a'], [false], [#passed-icon],
+    [4], [isValidNoteTitle], ["   " (только пробелы)], [false], [#passed-icon],
+    [5], [isValidCategory], ["Корректная тема"], [true], [#passed-icon],
+    [6], [isValidCategory], ["" (пустая строка)], [false], [#passed-icon],
+    [7], [isValidCategory], [51 символ 'a'], [false], [#passed-icon],
+  )
+)
