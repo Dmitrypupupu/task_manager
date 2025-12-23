@@ -1,5 +1,3 @@
-
-
 #let init(body) = {
 
   set text(
@@ -76,6 +74,7 @@
  {
     if true {
       show outline: set block(below: 1.25cm / 2)
+      show outline: set text(hyphenate: false)
       show heading: it => {
         set text(size: 14pt)
         set align(center)
@@ -99,7 +98,7 @@
   set math.equation(numbering: "(1)")
   
 
-  show raw: set text(10pt, font: "JetBrains Mono")
+  show raw: set text(10pt, font: "Times New Roman")
 
   body
 }
