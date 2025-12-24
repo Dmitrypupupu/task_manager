@@ -25,7 +25,7 @@ $(TARGET): $(OBJECTS)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 # Очистка
-clean:
+clean: 
 	rm -f $(OBJECTS) $(TARGET)
 	rm -rf notes
 	rm -f notes_metadata.dat
@@ -47,7 +47,7 @@ test: $(TEST_TARGET)
 
 # Сборка исполняемого файла тестов
 $(TEST_TARGET): test.o note.o validation.o
-	$(CXX) $(CXXFLAGS) -o $(TEST_TARGET) test.o note.o validation.o -lstdc++fs
+	$(CXX) $(CXXFLAGS) -o $(TEST_TARGET) test.o note.o validation.o
 
 # Очистка включая тесты
 clean-all: clean
